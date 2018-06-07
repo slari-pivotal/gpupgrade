@@ -6,10 +6,11 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/greenplum-db/gpupgrade/hub/cluster"
-	"github.com/greenplum-db/gpupgrade/hub/configutils"
+	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
 	"github.com/greenplum-db/gpupgrade/hub/services"
+	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/testutils"
 
@@ -17,9 +18,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
 	"google.golang.org/grpc"
-	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
-	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
-	"time"
 )
 
 var _ = Describe("prepare", func() {
@@ -46,8 +44,6 @@ var _ = Describe("prepare", func() {
 			HubToAgentPort: agentPort,
 			StateDir:       dir,
 		}
-		reader := configutils.NewReader()
-
 		commandExecer = &testutils.FakeCommandExecer{}
 		commandExecer.SetOutput(&testutils.FakeCommand{})
 
@@ -56,11 +52,11 @@ var _ = Describe("prepare", func() {
 			services.NewPingerManager(conf.StateDir, 500*time.Millisecond),
 			commandExecer.Exec,
 		)
-		hub = services.NewHub(&cluster.Pair{}, &reader, grpc.DialContext, commandExecer.Exec, conf, clusterSsher)
+		hub = services.NewHub(testutils.InitClusterPairFromDB(), grpc.DialContext, commandExecer.Exec, conf, clusterSsher)
 
 		pgPort := os.Getenv("PGPORT")
 
-		clusterConfig := fmt.Sprintf(`{"SegConfig":[{
+		clusterConfig := fmt.Sprintf(`[{
               "content": -1,
               "dbid": 1,
               "hostname": "localhost",
@@ -70,7 +66,7 @@ var _ = Describe("prepare", func() {
               "role": "m",
               "status": "u",
               "port": %s
-        }],"BinDir":"/tmp"}`, dir, pgPort)
+        }]`, dir, pgPort)
 
 		testutils.WriteOldConfig(dir, clusterConfig)
 		go hub.Start()

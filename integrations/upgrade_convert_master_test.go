@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/greenplum-db/gpupgrade/hub/cluster"
-	"github.com/greenplum-db/gpupgrade/hub/configutils"
+	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
 	"github.com/greenplum-db/gpupgrade/hub/services"
+	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/testutils"
 
@@ -33,7 +34,6 @@ var _ = Describe("upgrade convert master", func() {
 
 		outChan chan []byte
 		errChan chan error
-		stubRemoteExecutor *testutils.StubRemoteExecutor
 	)
 
 	BeforeEach(func() {
@@ -51,19 +51,19 @@ var _ = Describe("upgrade convert master", func() {
 		newBinDir, err = ioutil.TempDir("", "")
 		Expect(err).ToNot(HaveOccurred())
 
-		oldConfig := `{"SegConfig":[{
+		oldConfig := `[{
 			"dbid": 1,
 			"port": 5432,
 			"host": "localhost"
-		}],"BinDir":"/tmp"}`
+		}]`
 
 		testutils.WriteOldConfig(dir, oldConfig)
 
-		newConfig := `{"SegConfig":[{
+		newConfig := `[{
 			"dbid": 1,
 			"port": 6432,
 			"host": "localhost"
-		}],"BinDir":"/tmp"}`
+		}]`
 
 		testutils.WriteNewConfig(dir, newConfig)
 
@@ -79,8 +79,6 @@ var _ = Describe("upgrade convert master", func() {
 			StateDir:       dir,
 		}
 
-		reader := configutils.NewReader()
-
 		outChan = make(chan []byte, 10)
 		errChan = make(chan error, 10)
 
@@ -90,8 +88,12 @@ var _ = Describe("upgrade convert master", func() {
 			Err: errChan,
 		})
 
-		stubRemoteExecutor = testutils.NewStubRemoteExecutor()
-		hub = services.NewHub(&cluster.Pair{}, &reader, grpc.DialContext, commandExecer.Exec, conf, stubRemoteExecutor)
+		clusterSsher := cluster_ssher.NewClusterSsher(
+			upgradestatus.NewChecklistManager(conf.StateDir),
+			services.NewPingerManager(conf.StateDir, 500*time.Millisecond),
+			commandExecer.Exec,
+		)
+		hub = services.NewHub(testutils.InitClusterPairFromDB(), grpc.DialContext, commandExecer.Exec, conf, clusterSsher)
 		go hub.Start()
 	})
 

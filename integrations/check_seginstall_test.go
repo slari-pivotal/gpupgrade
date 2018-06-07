@@ -2,8 +2,14 @@ package integrations_test
 
 import (
 	"io/ioutil"
-	"github.com/greenplum-db/gpupgrade/hub/cluster"
+	"os"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
 	"github.com/greenplum-db/gpupgrade/hub/services"
+	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/testutils"
 
@@ -11,12 +17,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
 	"google.golang.org/grpc"
-	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
-	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
-	"time"
-	"strings"
-	"sync"
-	"os"
 )
 
 var _ = Describe("check", func() {
@@ -34,11 +34,11 @@ var _ = Describe("check", func() {
 		dir, err = ioutil.TempDir("", "")
 		Expect(err).ToNot(HaveOccurred())
 
-		config := `"SegConfig":[{
+		config := `[{
 			"content": 2,
 			"dbid": 7,
 			"hostname": "localhost"
-		}],"BinDir":"/tmp/bin"`
+		}]`
 		testutils.WriteOldConfig(dir, config)
 		testutils.WriteNewConfig(dir, config)
 
@@ -53,10 +53,6 @@ var _ = Describe("check", func() {
 			HubToAgentPort: agentPort,
 			StateDir:       dir,
 		}
-		reader := &testutils.SpyReader{
-			Hostnames: []string{"localhost"},
-		}
-
 		outChan = make(chan []byte, 2)
 		errChan = make(chan error, 2)
 
@@ -71,7 +67,7 @@ var _ = Describe("check", func() {
 			services.NewPingerManager(conf.StateDir, 500*time.Millisecond),
 			commandExecer.Exec,
 		)
-		hub = services.NewHub(&cluster.Pair{}, reader, grpc.DialContext, commandExecer.Exec, conf, clusterSsher)
+		hub = services.NewHub(testutils.InitClusterPairFromDB(), grpc.DialContext, commandExecer.Exec, conf, clusterSsher)
 		go hub.Start()
 	})
 

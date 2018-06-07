@@ -4,11 +4,12 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"time"
 
 	agentServices "github.com/greenplum-db/gpupgrade/agent/services"
-	"github.com/greenplum-db/gpupgrade/hub/cluster"
-	"github.com/greenplum-db/gpupgrade/hub/configutils"
+	"github.com/greenplum-db/gpupgrade/hub/cluster_ssher"
 	hubServices "github.com/greenplum-db/gpupgrade/hub/services"
+	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	"github.com/greenplum-db/gpupgrade/testutils"
 
 	"google.golang.org/grpc"
@@ -28,7 +29,6 @@ var _ = Describe("upgrade share oids", func() {
 
 		outChan chan []byte
 		errChan chan error
-		stubRemoteExecutor *testutils.StubRemoteExecutor
 	)
 
 	BeforeEach(func() {
@@ -36,11 +36,11 @@ var _ = Describe("upgrade share oids", func() {
 		dir, err = ioutil.TempDir("", "")
 		Expect(err).ToNot(HaveOccurred())
 
-		config := `{"SegConfig":[{
+		config := `[{
 			"dbid": 1,
 			"port": 5432,
 			"host": "localhost"
-		}],"BinDir":"/tmp"}`
+		}]`
 
 		testutils.WriteOldConfig(dir, config)
 		testutils.WriteNewConfig(dir, config)
@@ -68,8 +68,6 @@ var _ = Describe("upgrade share oids", func() {
 			StateDir:       dir,
 		}
 
-		reader := configutils.NewReader()
-
 		outChan = make(chan []byte, 10)
 		errChan = make(chan error, 10)
 		hubExecer = &testutils.FakeCommandExecer{}
@@ -78,8 +76,12 @@ var _ = Describe("upgrade share oids", func() {
 			Err: errChan,
 		})
 
-		stubRemoteExecutor = testutils.NewStubRemoteExecutor()
-		hub = hubServices.NewHub(&cluster.Pair{}, &reader, grpc.DialContext, hubExecer.Exec, conf, stubRemoteExecutor)
+		clusterSsher := cluster_ssher.NewClusterSsher(
+			upgradestatus.NewChecklistManager(conf.StateDir),
+			hubServices.NewPingerManager(conf.StateDir, 500*time.Millisecond),
+			hubExecer.Exec,
+		)
+		hub = hubServices.NewHub(testutils.InitClusterPairFromDB(), grpc.DialContext, hubExecer.Exec, conf, clusterSsher)
 		go hub.Start()
 	})
 
