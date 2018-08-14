@@ -1,0 +1,117 @@
+8-14-18
+=======
+1. Prep for the demo
+   - Good build of GPDB, up and running
+
+   Build source cluster
+   --------------------
+   cd ~/workspace
+   git clone https://github.com/greenplum-db/gpdb gpdb5
+   cd gpdb5
+   git checkout 5X_STABLE
+   git clean -xfd
+   git submodule update --init --recursive
+   sudo mkdir /usr/local/gpdb5
+   sudo chown pivotal:staff /usr/local/gpdb5
+   ./configure --prefix=/usr/local/gpdb5 --enable-debug --disable-gpfdist --enable-depend --enable-gpperfmon --disable-pxf CC="ccache gcc" CFLAGS=-O0 CXXFLAGS=-O0 CPPFLAGS=-O0
+   make
+   make install
+   cd gpAux/gpdemo
+   source /usr/local/gpdb5/greenplum_path.sh
+   make cluster
+   source gpdemo-env.sh
+   psql postgres
+   gpstop -a
+
+
+   Build target cluster
+   --------------------
+   Open another terminal and proceed as below.
+   cd ~/workspace
+   git clone https://github.com/greenplum-db/gpdb gpdb6
+   cd gpdb6
+   git checkout master
+   git clean -xfd
+   git submodule update --init --recursive
+   sudo mkdir /usr/local/gpdb6
+   sudo chown pivotal:staff /usr/local/gpdb6
+   ./configure --prefix=/usr/local/gpdb6 --enable-debug --disable-gpfdist --enable-depend --enable-gpperfmon --disable-pxf CC="ccache gcc" CFLAGS=-O0 CXXFLAGS=-O0 CPPFLAGS=-O0
+   make
+   make install
+   cd gpAux/gpdemo
+   source /usr/local/gpdb6/greenplum_path.sh
+   make cluster
+   source gpdemo-env.sh
+   psql postgres
+   gpdeletesystem
+
+
+   Good build of gpupgrade
+   -----------------------
+   Open another terminal and proceed as below.
+   cd ~/go/src/github.com/greenplum-db/gpupgrade #assume git clone has been done
+   git checkout master
+
+   source /usr/local/gpdb5/greenplum_path.sh
+   source ~/workspace/gpdb5/gpAux/gpdemo/gpdemo-env.sh
+   gpstart -a
+
+   make
+   make install
+   make check
+
+
+   Create a database and its objects for upgrade
+   ---------------------------------------------
+   cd demo
+   psql -d postgres -f load.sql
+
+
+   Run ./reset_demo.sh
+
+
+
+2. Demo the upgrade
+   - Intro by Scott
+   - Brief architecture overview
+   - Issue some command to demonstrate our version of GPDB, and the source
+     database
+
+	 psql -d postgres -f source.sql
+
+
+   - Upgrade the cluster
+
+     export SOURCE_GPHOME=/usr/local/gpdb5
+     export TARGET_GPHOME=/usr/local/gpdb6
+
+    gpupgrade prepare init --old-bindir "$SOURCE_GPHOME"/bin --new-bindir "$TARGET_GPHOME"/bin
+
+    gpupgrade prepare start-hub
+	gpupgrade status upgrade
+
+    gpupgrade check config
+    gpupgrade check version
+    gpupgrade check seginstall
+	gpupgrade status upgrade
+
+    gpupgrade prepare start-agents
+	gpupgrade status upgrade		#wait till prepare start-agents is complete
+
+    gpupgrade prepare init-cluster
+	watch gpupgrade status upgrade		#wait till prepare init-cluster is complete
+
+    gpupgrade prepare shutdown-clusters
+	gpupgrade status upgrade		#wait till prepare shutdown-clusters is complete
+
+
+
+
+
+   - Issue the same commands that we are at the newer version and have the same
+   	 data.
+
+3. Discussion
+   - How to make sure GPDB changes do not break gupgrade?
+   - How to verify that a customer's multi-TB cluster is upgraded correctly?
+
