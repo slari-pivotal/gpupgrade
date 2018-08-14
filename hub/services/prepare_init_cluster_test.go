@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/blang/semver"
 	"github.com/pkg/errors"
 
 	"github.com/greenplum-db/gpupgrade/hub/services"
@@ -13,6 +14,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	"github.com/greenplum-db/gp-common-go-libs/dbconn"
 	"github.com/greenplum-db/gp-common-go-libs/testhelper"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -28,9 +30,16 @@ var _ = Describe("Hub prepare init-cluster", func() {
 	)
 
 	BeforeEach(func() {
+		version, err := semver.Make("6.0.0")
+		Expect(err).ToNot(HaveOccurred())
+
 		expectedCluster = &utils.Cluster{
 			Cluster: testutils.MockCluster(),
 			BinDir:  "/tmp",
+			Version: dbconn.GPDBVersion{
+				VersionString: version.String(),
+				SemVer:        version,
+			},
 		}
 
 		segDataDirMap = map[string][]string{
