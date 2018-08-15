@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/blang/semver"
-	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/utils"
 
@@ -28,7 +27,7 @@ func (s *AgentServer) UpgradeConvertPrimarySegments(ctx context.Context, in *pb.
 
 func (s *AgentServer) UpgradeSegments(in *pb.UpgradeConvertPrimarySegmentsRequest) error {
 	filename := "pg_upgrade_dump_*_oids.sql"
-	shareOIDfilePath := filepath.Join(s.conf.StateDir, upgradestatus.CONVERT_PRIMARIES, filename)
+	shareOIDfilePath := filepath.Join(utils.PGUpgradeDirectory(s.conf.StateDir), filename)
 	oidFiles, err := utils.System.FilePathGlob(shareOIDfilePath)
 	if err != nil {
 		gplog.Error("ls OID files failed. Err: %v", err)
@@ -51,13 +50,13 @@ func (s *AgentServer) UpgradeSegments(in *pb.UpgradeConvertPrimarySegmentsReques
 	// pg_upgrade changed its API in GPDB 6.0.
 	var modeStr string
 	if targetVersion.LT(semver.MustParse("6.0.0")) {
-		modeStr = ""
+		modeStr = "--progress"
 	} else {
 		modeStr = "--mode=segment"
 	}
 
 	for _, segment := range in.DataDirPairs {
-		pathToSegment := filepath.Join(s.conf.StateDir, upgradestatus.CONVERT_PRIMARIES, fmt.Sprintf("seg%d", segment.Content))
+		pathToSegment := utils.SegmentPGUpgradeDirectory(s.conf.StateDir, int(segment.Content))
 		err := utils.System.MkdirAll(pathToSegment, 0700)
 		if err != nil {
 			gplog.Error("Could not create segment directory. Err: %v", err)

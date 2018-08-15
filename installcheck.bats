@@ -16,10 +16,6 @@ teardown() {
     if ! psql -d postgres -c ''; then
         gpstart -a
     fi
-
-    rm ./analyze_new_cluster.sh
-    rm ./delete_old_cluster.sh
-
 }
 
 @test "gpugrade can make it as far as we currently know..." {
@@ -53,6 +49,9 @@ teardown() {
 
     gpupgrade upgrade convert-primaries
     EventuallyStepCompletes "Run pg_upgrade on primaries"
+
+    gpupgrade upgrade validate-start-cluster
+    EventuallyStepCompletes "Validate the upgraded cluster can start up"
 }
 
 EventuallyStepCompletes() {
