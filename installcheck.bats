@@ -12,16 +12,10 @@ setup() {
     kill_agents
 }
 
-teardown() {
-    if ! psql -d postgres -c ''; then
-        gpstart -a
-    fi
-}
-
 @test "gpugrade can make it as far as we currently know..." {
     gpupgrade prepare init \
-              --new-bindir /usr/local/gpdb5/bin \
-              --old-bindir /usr/local/gpdb4/bin
+              --new-bindir /usr/local/5/bin \
+              --old-bindir /usr/local/4/bin
 
     gpupgrade prepare start-hub 3>&-
 
