@@ -24,8 +24,8 @@ teardown() {
 
 @test "gpugrade can make it as far as we currently know..." {
     gpupgrade prepare init \
-              --new-bindir "$GPHOME"/bin \
-              --old-bindir "$GPHOME"/bin
+              --new-bindir /usr/local/gpdb5/bin \
+              --old-bindir /usr/local/gpdb4/bin
 
     gpupgrade prepare start-hub 3>&-
 
@@ -48,10 +48,11 @@ teardown() {
     gpupgrade upgrade convert-master
     EventuallyStepCompletes "Run pg_upgrade on master"
 
-    # FIXME: temp to test username change
-    touch ~/.gpupgrade/convert-master/pg_upgrade_dump_{1,2}_oids.sql
     gpupgrade upgrade share-oids
     EventuallyStepCompletes "Copy OID files from master to segments"
+
+    gpupgrade upgrade convert-primaries
+    EventuallyStepCompletes "Run pg_upgrade on primaries"
 }
 
 EventuallyStepCompletes() {

@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/greenplum-db/gp-common-go-libs/gplog"
 	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 )
 
 func (s *AgentServer) CheckConversionStatus(ctx context.Context, in *pb.CheckConversionStatusRequest) (*pb.CheckConversionStatusReply, error) {
+	gplog.Info("retrieving segment conversion status") // XXX
+
 	if len(in.GetSegments()) == 0 {
 		return nil, errors.New("no segment information was passed to the agent")
 	}

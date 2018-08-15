@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/blang/semver"
 	"github.com/greenplum-db/gpupgrade/hub/upgradestatus"
 	pb "github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/utils"
@@ -16,17 +17,43 @@ import (
 func (s *AgentServer) UpgradeConvertPrimarySegments(ctx context.Context, in *pb.UpgradeConvertPrimarySegmentsRequest) (*pb.UpgradeConvertPrimarySegmentsReply, error) {
 	gplog.Info("got a request to convert primary from the hub")
 
+	err := s.UpgradeSegments(in)
+
+	if err != nil {
+		return &pb.UpgradeConvertPrimarySegmentsReply{}, err
+	}
+
+	return &pb.UpgradeConvertPrimarySegmentsReply{}, nil
+}
+
+func (s *AgentServer) UpgradeSegments(in *pb.UpgradeConvertPrimarySegmentsRequest) error {
 	filename := "pg_upgrade_dump_*_oids.sql"
-	shareOIDfilePath := filepath.Join(s.conf.StateDir, upgradestatus.CONVERT_MASTER, filename)
+	shareOIDfilePath := filepath.Join(s.conf.StateDir, upgradestatus.CONVERT_PRIMARIES, filename)
 	oidFiles, err := utils.System.FilePathGlob(shareOIDfilePath)
 	if err != nil {
 		gplog.Error("ls OID files failed. Err: %v", err)
-		return &pb.UpgradeConvertPrimarySegmentsReply{}, err
+		return err
 	}
 	//len(nil) = 0
 	if len(oidFiles) == 0 {
 		gplog.Error("Share OID files do not exist. Pattern was: %s", shareOIDfilePath)
-		return &pb.UpgradeConvertPrimarySegmentsReply{}, errors.New("No OID files found")
+		return errors.New("No OID files found")
+	}
+
+	targetVersion, err := semver.Parse(in.NewVersion)
+	if err != nil {
+		gplog.Error("failed to parse new cluster version string: %s", err)
+		return err
+	}
+
+	// TODO: consolidate this logic with Hub.ConvertMaster().
+
+	// pg_upgrade changed its API in GPDB 6.0.
+	var modeStr string
+	if targetVersion.LT(semver.MustParse("6.0.0")) {
+		modeStr = ""
+	} else {
+		modeStr = "--mode=segment"
 	}
 
 	for _, segment := range in.DataDirPairs {
@@ -34,26 +61,37 @@ func (s *AgentServer) UpgradeConvertPrimarySegments(ctx context.Context, in *pb.
 		err := utils.System.MkdirAll(pathToSegment, 0700)
 		if err != nil {
 			gplog.Error("Could not create segment directory. Err: %v", err)
-			return &pb.UpgradeConvertPrimarySegmentsReply{}, err
+			return err
 		}
 
 		for _, oidFile := range oidFiles {
 			out, err := s.executor.ExecuteLocalCommand(fmt.Sprintf("cp %s %s", oidFile, pathToSegment))
 			if err != nil {
 				gplog.Error("Failed to copy OID files for segment %d. Output: %s", segment.Content, string(out))
-				return &pb.UpgradeConvertPrimarySegmentsReply{}, err
+				return err
 			}
 		}
 
-		convertPrimaryCmd := fmt.Sprintf("cd %s && nohup %s --old-bindir=%s --old-datadir=%s --new-bindir=%s --new-datadir=%s --old-port=%d --new-port=%d --progress",
-			pathToSegment, in.NewBinDir+"/pg_upgrade", in.OldBinDir, segment.OldDataDir, in.NewBinDir, segment.NewDataDir, segment.OldPort, segment.NewPort)
+		cmd := fmt.Sprintf("cd %s; unset PGHOST; unset PGPORT; %s "+
+			"--old-bindir=%s --old-datadir=%s --old-port=%d "+
+			"--new-bindir=%s --new-datadir=%s --new-port=%d %s",
+			pathToSegment,
+			filepath.Join(in.NewBinDir, "pg_upgrade"),
+			in.OldBinDir,
+			segment.OldDataDir,
+			segment.OldPort,
+			in.NewBinDir,
+			segment.NewDataDir,
+			segment.NewPort,
+			modeStr)
 
-		err = utils.System.RunCommandAsync(convertPrimaryCmd, filepath.Join(pathToSegment, "pg_upgrade_segment.log"))
+		// TODO: do this synchronously.
+		err = utils.System.RunCommandAsync(cmd, filepath.Join(pathToSegment, "pg_upgrade_segment.log"))
 		if err != nil {
 			gplog.Error("An error occurred: %v", err)
-			return &pb.UpgradeConvertPrimarySegmentsReply{}, err
+			return err
 		}
 	}
 
-	return &pb.UpgradeConvertPrimarySegmentsReply{}, nil
+	return nil
 }
