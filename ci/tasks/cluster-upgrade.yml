@@ -6,6 +6,10 @@ image_resource:
     repository: pivotaldata/centos-gpdb-dev
     tag: "6-gcc6.2-llvm3.7"
 
+params:
+  GPHOME_OLD:
+  GPHOME_NEW:
+
 inputs:
 - name: terraform
 - name: ccp_src

@@ -1,0 +1,19 @@
+PLATFORM: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: pivotaldata/gpdb6-centos7-test
+    tag: latest
+
+params:
+  TARBALL_DIR:
+
+inputs:
+- name: gpupgrade_src
+- name: cluster_env_files
+- name: bin_gpdb_new
+- name: ccp_src
+
+run:
+  path: gpupgrade_src/ci/scripts/install-gpdb.sh

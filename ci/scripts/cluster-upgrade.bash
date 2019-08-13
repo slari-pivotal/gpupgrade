@@ -22,24 +22,35 @@ make
 # Install the artifacts onto the cluster machines.
 artifacts='gpupgrade gpupgrade_hub gpupgrade_agent'
 for host in "${hosts[@]}"; do
-    scp $artifacts "gpadmin@$host:/usr/local/greenplum-db-devel/bin/"
+    scp $artifacts "gpadmin@$host:${GPHOME_NEW}/bin/"
 done
 
 # Load the SQL dump into the cluster.
+# TODO: do we want to keep this for 5to6?  We want to for 6to6.
 echo 'Loading SQL dump...'
-time ssh mdw bash <<"EOF"
+time ssh mdw GPHOME_OLD=${GPHOME_OLD} bash <<"EOF"
     set -eux -o pipefail
 
-    source /usr/local/greenplum-db-devel/greenplum_path.sh
+    source ${GPHOME_OLD}/greenplum_path.sh
     export PGOPTIONS='--client-min-messages=warning'
     unxz < /tmp/dump.sql.xz | psql -f - postgres
 EOF
 
+
+time ssh mdw GPHOME_OLD=${GPHOME_OLD} bash <<"EOF"
+    set -eux -o pipefail
+
+    source ${GPHOME_OLD}/greenplum_path.sh
+    export PGOPTIONS='--client-min-messages=warning'
+    psql -p 5432 -d postgres -U gpadmin -c "alter role gpadmin NOCREATEEXTTABLE(protocol='gphdfs',type='readable');"
+    psql -p 5432 -d postgres -U gpadmin -c "alter role gpadmin NOCREATEEXTTABLE(protocol='gphdfs',type='writable');"
+EOF
+
 # Now do the upgrade.
-time ssh mdw bash <<"EOF"
+time ssh mdw GPHOME_OLD=${GPHOME_OLD} GPHOME_NEW=${GPHOME_NEW} bash <<"EOF"
     set -eu -o pipefail
 
-    source /usr/local/greenplum-db-devel/greenplum_path.sh
+    source ${GPHOME_OLD}/greenplum_path.sh
     export PGPORT=5432 # TODO remove the need for this
 
     wait_for_step() {
@@ -83,7 +94,7 @@ time ssh mdw bash <<"EOF"
         echo "Dumping cluster contents from port ${port} to ${dumpfile}..."
 
         ssh -n mdw "
-            source /usr/local/greenplum-db-devel/greenplum_path.sh
+            source ${GPHOME_OLD}/greenplum_path.sh
             pg_dumpall -p ${port} -f '$dumpfile'
         "
     }
@@ -101,9 +112,14 @@ time ssh mdw bash <<"EOF"
 
     dump_sql 5432 /tmp/old.sql
 
+    source ${GPHOME_NEW}/greenplum_path.sh
+
+    echo "GPHOME_OLD: ${GPHOME_OLD}"
+    echo "GPHOME_NEW: ${GPHOME_NEW}"
+
     gpupgrade prepare init \
-              --new-bindir /usr/local/greenplum-db-devel/bin \
-              --old-bindir /usr/local/greenplum-db-devel/bin
+              --old-bindir ${GPHOME_OLD}/bin \
+              --new-bindir ${GPHOME_NEW}/bin
 
     gpupgrade prepare start-hub
 
