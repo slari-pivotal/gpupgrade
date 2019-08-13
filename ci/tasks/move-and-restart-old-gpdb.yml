@@ -1,0 +1,19 @@
+PLATFORM: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: pivotaldata/gpdb6-centos7-test
+    tag: latest
+
+params:
+  GPHOME_OLD:
+
+inputs:
+- name: gpupgrade_src
+- name: cluster_env_files
+- name: ccp_src
+
+run:
+  path: gpupgrade_src/ci/scripts/move-and-restart-old-gpdb.sh
+
