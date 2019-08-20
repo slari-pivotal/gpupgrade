@@ -24,6 +24,7 @@ artifacts='gpupgrade gpupgrade_hub gpupgrade_agent'
 for host in "${hosts[@]}"; do
     scp $artifacts "gpadmin@$host:${GPHOME_NEW}/bin/"
 done
+scp ci/scripts/test_gpdb5_database_fixups.sql gpadmin@mdw:/tmp/
 
 # Load the SQL dump into the cluster.
 # TODO: do we want to keep this for 5to6?  We want to for 6to6.
@@ -36,14 +37,18 @@ time ssh mdw GPHOME_OLD=${GPHOME_OLD} bash <<"EOF"
     unxz < /tmp/dump.sql.xz | psql -f - postgres
 EOF
 
-
 time ssh mdw GPHOME_OLD=${GPHOME_OLD} bash <<"EOF"
     set -eux -o pipefail
 
     source ${GPHOME_OLD}/greenplum_path.sh
     export PGOPTIONS='--client-min-messages=warning'
-    psql -p 5432 -d postgres -U gpadmin -c "alter role gpadmin NOCREATEEXTTABLE(protocol='gphdfs',type='readable');"
-    psql -p 5432 -d postgres -U gpadmin -c "alter role gpadmin NOCREATEEXTTABLE(protocol='gphdfs',type='writable');"
+    isGPDB5=$(psql -p 5432 -d postgres -A -t -c "select count(version) from version() where version like '%Greenplum Database 5%';")
+    if [ $isGPDB5 -eq 1 ]; then
+        echo "running test_gpdb5_database_fixups.sql"
+        psql -p 5432 -d postgres -U gpadmin -f /tmp/test_gpdb5_database_fixups.sql
+    else
+        echo "not running test_gpdb5_database_fixups.sql"
+    fi
 EOF
 
 # Now do the upgrade.
