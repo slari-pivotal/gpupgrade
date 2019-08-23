@@ -46,6 +46,8 @@ func (s *AgentServer) UpgradeSegments(oldBinDir string, newBinDir string, dataDi
 			segment.NewDataDir,
 			segment.NewPort)
 
+		gplog.Info("Upgrade Segments upgrade command: %#v", cmd)
+
 		// TODO: do this synchronously.
 		err = utils.System.RunCommandAsync(cmd, filepath.Join(pathToSegment, "pg_upgrade_segment.log"))
 		if err != nil {
