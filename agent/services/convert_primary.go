@@ -35,7 +35,7 @@ func (s *AgentServer) UpgradeSegments(oldBinDir string, newBinDir string, dataDi
 
 		cmd := fmt.Sprintf("source %s; cd %s; unset PGHOST; unset PGPORT; "+
 			"%s --old-bindir=%s --old-datadir=%s --old-port=%d "+
-			"--new-bindir=%s --new-datadir=%s --new-port=%d --mode=segment --progress",
+			"--new-bindir=%s --new-datadir=%s --new-port=%d --mode=segment --progress -r -v",
 			filepath.Join(newBinDir, "..", "greenplum_path.sh"),
 			pathToSegment,
 			filepath.Join(newBinDir, "pg_upgrade"),

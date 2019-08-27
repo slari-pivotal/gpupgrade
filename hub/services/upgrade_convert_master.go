@@ -45,7 +45,7 @@ func (h *Hub) ConvertMaster() error {
 
 	pgUpgradeCmd := fmt.Sprintf("source %s; cd %s; unset PGHOST; unset PGPORT; "+
 		"%s --old-bindir=%s --old-datadir=%s --old-port=%d "+
-		"--new-bindir=%s --new-datadir=%s --new-port=%d --mode=dispatcher",
+		"--new-bindir=%s --new-datadir=%s --new-port=%d --mode=dispatcher -r -v",
 		filepath.Join(h.target.BinDir, "..", "greenplum_path.sh"),
 		pathToUpgradeWD,
 		filepath.Join(h.target.BinDir, "pg_upgrade"),
@@ -63,6 +63,7 @@ func (h *Hub) ConvertMaster() error {
 		gplog.Error("pg_upgrade failed to start: %s", output)
 		return errors.Wrapf(err, "pg_upgrade on master segment failed")
 	}
+	// TODO: log output of pg_upgrade even if it succeeds?
 
 	return nil
 }
