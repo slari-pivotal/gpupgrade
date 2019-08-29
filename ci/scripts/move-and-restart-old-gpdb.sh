@@ -4,6 +4,14 @@ set -euo pipefail
 export MASTER_DATA_DIRECTORY=/data/gpdata/master/gpseg-1
 export PGPORT=5432
 
+function install_python_hacks_on_host() {
+	local node_hostname=$1 gphome_old=$2
+	ssh -t centos@"$node_hostname" GPHOME_OLD="${gphome_old}" "sudo bash -c '
+		 source /home/gpadmin/common.bash
+		 install_python_hacks
+	'"
+}
+
 move_and_update_path() {
 	local node_hostname=$1 gphome_old=$2
     ssh -ttn centos@"$node_hostname" GPHOME_OLD="${gphome_old}" '
@@ -38,7 +46,9 @@ EOF
 stop_old_cluster
 
 for segment_host in $(cat cluster_env_files/hostfile_all); do
-  move_and_update_path $segment_host "${GPHOME_OLD}"
+	scp gpadmin@mdw:/home/gpadmin/gpdb_src/concourse/scripts/common.bash gpadmin@${segment_host}:/home/gpadmin
+	install_python_hacks_on_host $segment_host "${GPHOME_OLD}"
+	move_and_update_path $segment_host "${GPHOME_OLD}"
 done
 
 start_old_cluster "${GPHOME_OLD}"
