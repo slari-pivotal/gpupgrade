@@ -5,11 +5,13 @@ export MASTER_DATA_DIRECTORY=/data/gpdata/master/gpseg-1
 export PGPORT=5432
 
 function install_python_hacks_on_host() {
-	local node_hostname=$1 gphome_old=$2
-	ssh -t centos@"$node_hostname" GPHOME_OLD="${gphome_old}" "sudo bash -c '
+	local node_hostname=$1 gphome_old=$2 gphome_new=$3
+	ssh -t centos@"$node_hostname" GPHOME_OLD="${gphome_old}" "sudo bash -c \"
 		 source /home/gpadmin/common.bash
 		 install_python_hacks
-	'"
+		 ls ${gphome_old}/bin/p* | xargs -n 1 sudo patchelf --set-rpath '\\\$ORIGIN/../lib'
+		 ls ${gphome_new}/bin/p* | xargs -n 1 sudo patchelf --set-rpath '\\\$ORIGIN/../lib'
+	\""
 }
 
 move_and_update_path() {
@@ -47,7 +49,7 @@ stop_old_cluster
 
 for segment_host in $(cat cluster_env_files/hostfile_all); do
 	scp gpadmin@mdw:/home/gpadmin/gpdb_src/concourse/scripts/common.bash gpadmin@${segment_host}:/home/gpadmin
-	install_python_hacks_on_host $segment_host "${GPHOME_OLD}"
+	install_python_hacks_on_host $segment_host "${GPHOME_OLD}" "${GPHOME_NEW}"
 	move_and_update_path $segment_host "${GPHOME_OLD}"
 done
 

@@ -178,6 +178,7 @@ jobs:
     file: gpupgrade_src/ci/tasks/move-and-restart-old-gpdb.yml
     params:
       GPHOME_OLD: /usr/local/greenplum-db-old
+      GPHOME_NEW: /usr/local/greenplum-db
   - task: gpdb_install_new
     file: gpupgrade_src/ci/tasks/install-gpdb.yml
     input_mapping:

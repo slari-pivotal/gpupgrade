@@ -43,7 +43,7 @@ func (h *Hub) ConvertMaster() error {
 		return errors.Wrapf(err, "mkdir %s failed", pathToUpgradeWD)
 	}
 
-	pgUpgradeCmd := fmt.Sprintf("source %s; cd %s; unset PGHOST; unset PGPORT; "+
+	pgUpgradeCmd := fmt.Sprintf("source %s; cd %s; unset LD_LIBRARY_PATH; unset PGHOST; unset PGPORT; "+
 		"%s --old-bindir=%s --old-datadir=%s --old-port=%d "+
 		"--new-bindir=%s --new-datadir=%s --new-port=%d --mode=dispatcher -r -v",
 		filepath.Join(h.target.BinDir, "..", "greenplum_path.sh"),
