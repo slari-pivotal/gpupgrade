@@ -8,6 +8,7 @@ image_resource:
 
 params:
   GPHOME_OLD:
+  GPHOME_NEW:
 
 inputs:
 - name: gpupgrade_src
