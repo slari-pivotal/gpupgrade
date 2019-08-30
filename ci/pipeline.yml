@@ -173,18 +173,17 @@ jobs:
       GPINITSYSTEM_CONFIG: gpdb_src/concourse/scripts/configurations/pg_upgrade_gpinitsystem_config
   - task: gpinitsystem
     file: ccp_src/ci/tasks/gpinitsystem.yml
-    # todo: we can remove this once we fix the issue
-  - task: move_and_restart_old_gpdb 
-    file: gpupgrade_src/ci/tasks/move-and-restart-old-gpdb.yml
-    params:
-      GPHOME_OLD: /usr/local/greenplum-db-old
-      GPHOME_NEW: /usr/local/greenplum-db
   - task: gpdb_install_new
     file: gpupgrade_src/ci/tasks/install-gpdb.yml
     input_mapping:
       bin_gpdb_new: bin_gpdb6_centos6
     params:
       TARBALL_DIR: bin_gpdb_new
+  - task: move_and_restart_old_gpdb
+    file: gpupgrade_src/ci/tasks/move-and-restart-old-gpdb.yml
+    params:
+      GPHOME_OLD: /usr/local/greenplum-db-old
+      GPHOME_NEW: /usr/local/greenplum-db
   - task: cluster-upgrade
     file: gpupgrade_src/ci/tasks/cluster-upgrade.yml
     params:
