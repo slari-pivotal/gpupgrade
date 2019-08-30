@@ -7,10 +7,27 @@ export PGPORT=5432
 function install_python_hacks_on_host() {
 	local node_hostname=$1 gphome_old=$2 gphome_new=$3
 	ssh -t centos@"$node_hostname" GPHOME_OLD="${gphome_old}" "sudo bash -c \"
-		 source /home/gpadmin/common.bash
-		 install_python_hacks
-		 ls ${gphome_old}/bin/p* | xargs -n 1 sudo patchelf --set-rpath '\\\$ORIGIN/../lib'
-		 ls ${gphome_new}/bin/p* | xargs -n 1 sudo patchelf --set-rpath '\\\$ORIGIN/../lib'
+		source /home/gpadmin/common.bash
+		install_python_hacks
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/pg_ctl
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/pg_ctl
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/pg_upgrade
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/pg_upgrade
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/pg_dump
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/pg_dump
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/pg_dumpall
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/pg_dumpall
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/pg_restore
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/pg_restore
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/psql
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/psql
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/postgres
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/postgres
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_old}/bin/vacuumdb
+		sudo patchelf --set-rpath '\\\$ORIGIN/../lib' ${gphome_new}/bin/vacuumdb
+		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_old}/lib/libpq.so.5
+		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_old}/lib/libgssapi_krb5.so.2
+		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_new}/lib/libpq.so.5
 	\""
 }
 
@@ -48,9 +65,9 @@ EOF
 stop_old_cluster
 
 for segment_host in $(cat cluster_env_files/hostfile_all); do
+	move_and_update_path $segment_host "${GPHOME_OLD}"
 	scp gpadmin@mdw:/home/gpadmin/gpdb_src/concourse/scripts/common.bash gpadmin@${segment_host}:/home/gpadmin
 	install_python_hacks_on_host $segment_host "${GPHOME_OLD}" "${GPHOME_NEW}"
-	move_and_update_path $segment_host "${GPHOME_OLD}"
 done
 
 start_old_cluster "${GPHOME_OLD}"

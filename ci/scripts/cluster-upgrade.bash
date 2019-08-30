@@ -92,14 +92,26 @@ time ssh mdw GPHOME_OLD=${GPHOME_OLD} GPHOME_NEW=${GPHOME_NEW} bash <<"EOF"
         fi
     }
 
-    dump_sql() {
+    dump_sql_old() {
         local port=$1
         local dumpfile=$2
 
-        echo "Dumping cluster contents from port ${port} to ${dumpfile}..."
+        echo "Dumping old cluster contents from port ${port} to ${dumpfile}..."
 
         ssh -n mdw "
             source ${GPHOME_OLD}/greenplum_path.sh
+            pg_dumpall -p ${port} -f '$dumpfile'
+        "
+    }
+
+    dump_sql_new() {
+        local port=$1
+        local dumpfile=$2
+
+        echo "Dumping new cluster contents from port ${port} to ${dumpfile}..."
+
+        ssh -n mdw "
+            source ${GPHOME_NEW}/greenplum_path.sh
             pg_dumpall -p ${port} -f '$dumpfile'
         "
     }
@@ -115,7 +127,7 @@ time ssh mdw GPHOME_OLD=${GPHOME_OLD} GPHOME_NEW=${GPHOME_NEW} bash <<"EOF"
         "
     }
 
-    dump_sql 5432 /tmp/old.sql
+    dump_sql_old 5432 /tmp/old.sql
 
     source ${GPHOME_NEW}/greenplum_path.sh
 
@@ -152,7 +164,7 @@ time ssh mdw GPHOME_OLD=${GPHOME_OLD} GPHOME_NEW=${GPHOME_NEW} bash <<"EOF"
     gpupgrade upgrade validate-start-cluster
     wait_for_step "Validate the upgraded cluster can start up"
 
-    dump_sql 5433 /tmp/new.sql
+    dump_sql_new 5433 /tmp/new.sql
     if ! compare_dumps /tmp/old.sql /tmp/new.sql; then
         echo 'error: before and after dumps differ'
         exit 1
