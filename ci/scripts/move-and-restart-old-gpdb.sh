@@ -28,6 +28,7 @@ function install_python_hacks_on_host() {
 		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_old}/lib/libpq.so.5
 		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_old}/lib/libgssapi_krb5.so.2
 		sudo patchelf --set-rpath '\\\$ORIGIN' ${gphome_new}/lib/libpq.so.5
+		sudo patchelf --set-rpath '\\\$ORIGIN/../ext/python/lib' ${gphome_old}/lib/postgresql/plpython2.so
 	\""
 }
 
