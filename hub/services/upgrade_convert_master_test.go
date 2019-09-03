@@ -29,10 +29,10 @@ var _ = Describe("ConvertMasterHub", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		Expect(testExecutor.LocalCommands[0]).To(Equal("source /target/greenplum_path.sh; " +
-			fmt.Sprintf("cd %s; unset PGHOST; unset PGPORT; /target/bindir/pg_upgrade ", upgradeDir) +
+			fmt.Sprintf("cd %s; unset LD_LIBRARY_PATH; unset PGHOST; unset PGPORT; /target/bindir/pg_upgrade ", upgradeDir) +
 			fmt.Sprintf("--old-bindir=/source/bindir --old-datadir=%s/seg-1 --old-port=15432 ", dir) +
 			fmt.Sprintf("--new-bindir=/target/bindir --new-datadir=%s/seg-1 --new-port=15432 ", dir) +
-			"--mode=dispatcher"))
+			"--mode=dispatcher -r -v"))
 	})
 
 	It("returns an error when convert master fails", func() {
