@@ -32,7 +32,7 @@ var _ = Describe("ConvertMasterHub", func() {
 			fmt.Sprintf("cd %s; unset PGHOST; unset PGPORT; /target/bindir/pg_upgrade ", upgradeDir) +
 			fmt.Sprintf("--old-bindir=/source/bindir --old-datadir=%s/seg-1 --old-port=15432 ", dir) +
 			fmt.Sprintf("--new-bindir=/target/bindir --new-datadir=%s/seg-1 --new-port=15432 ", dir) +
-			"--mode=dispatcher"))
+			"--mode=dispatcher -r -v"))
 	})
 
 	It("returns an error when convert master fails", func() {
