@@ -53,7 +53,7 @@ func BuildRootCommand() *cobra.Command {
 	root.AddCommand(prepare, config, status, check, version)
 	root.AddCommand(initialize())
 	root.AddCommand(execute)
-	root.AddCommand(subUpgradeReconfigurePorts)
+	root.AddCommand(finalize)
 
 	subConfigSet := createConfigSetSubcommand()
 	subConfigShow := createConfigShowSubcommand()
@@ -287,10 +287,10 @@ var subStatusUpgrade = &cobra.Command{
 }
 
 //////////////////////////////////////// UPGRADE and its subcommands
-var subUpgradeReconfigurePorts = &cobra.Command{
-	Use:   "reconfigure-ports",
-	Short: "Set master port on upgraded cluster to the value from the older cluster",
-	Long:  `Set master port on upgraded cluster to the value from the older cluster`,
+var finalize = &cobra.Command{
+	Use:   "finalize",
+	Short: "finalizes the cluster after upgrade execution",
+	Long:  "finalizes the cluster after upgrade execution",
 	Run: func(cmd *cobra.Command, args []string) {
 		client := connectToHub()
 		err := commanders.NewUpgrader(client).ReconfigurePorts()

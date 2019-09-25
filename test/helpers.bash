@@ -52,3 +52,23 @@ kill_agents() {
         fi
     fi
 }
+
+# Calls gpdeletesystem on the cluster pointed to by the given master data
+# directory.
+delete_cluster() {
+    local masterdir="$1"
+
+    # Sanity check.
+    if [[ $masterdir != *_upgrade/demoDataDir* ]]; then
+        abort "cowardly refusing to delete $masterdir which does not look like an upgraded demo data directory"
+    fi
+
+    # Look up the master port (fourth line of the postmaster PID file).
+    local port=$(awk 'NR == 4 { print $0 }' < "$masterdir/postmaster.pid")
+
+    local gpdeletesystem="$GPHOME"/bin/gpdeletesystem
+
+    # XXX gpdeletesystem returns 1 if there are warnings. There are always
+    # warnings. So we ignore the exit code...
+    yes | PGPORT="$port" "$gpdeletesystem" -fd "$masterdir" || true
+}

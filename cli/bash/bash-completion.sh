@@ -357,6 +357,23 @@ _gpupgrade_execute()
     noun_aliases=()
 }
 
+_gpupgrade_finalize()
+{
+    last_command="gpupgrade_finalize"
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
 _gpupgrade_initialize()
 {
     last_command="gpupgrade_initialize"
@@ -376,23 +393,6 @@ _gpupgrade_initialize()
     must_have_one_flag+=("--new-bindir=")
     must_have_one_flag+=("--old-bindir=")
     must_have_one_flag+=("--old-port=")
-    must_have_one_noun=()
-    noun_aliases=()
-}
-
-_gpupgrade_reconfigure-ports()
-{
-    last_command="gpupgrade_reconfigure-ports"
-    commands=()
-
-    flags=()
-    two_word_flags=()
-    local_nonpersistent_flags=()
-    flags_with_completion=()
-    flags_completion=()
-
-
-    must_have_one_flag=()
     must_have_one_noun=()
     noun_aliases=()
 }
@@ -474,8 +474,8 @@ _gpupgrade()
     commands+=("check")
     commands+=("config")
     commands+=("execute")
+    commands+=("finalize")
     commands+=("initialize")
-    commands+=("reconfigure-ports")
     commands+=("status")
     commands+=("version")
 

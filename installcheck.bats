@@ -30,8 +30,7 @@ teardown() {
               --old-port 15432 3>&-
 
     gpupgrade execute
-
-    gpupgrade reconfigure-ports
+    gpupgrade finalize
 }
 
 clean_target_cluster() {

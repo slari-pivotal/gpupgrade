@@ -123,7 +123,7 @@ outputContains() {
         'status upgrade'
         'status conversion'
         'execute'
-        'reconfigure-ports'
+        'finalize'
     )
 
     # We don't want to have to wait for the default one-second timeout for all

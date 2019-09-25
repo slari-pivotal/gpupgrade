@@ -8,7 +8,7 @@ setup() {
     kill_hub
     kill_agents
 
-    # If this variable is set (to a "$port $datadir" pair), teardown() will call
+    # If this variable is set (to a master data directory), teardown() will call
     # gpdeletesystem on this cluster.
     NEW_CLUSTER=
 }
@@ -19,9 +19,7 @@ teardown() {
     rm -r "$STATE_DIR"
 
     if [ -n "$NEW_CLUSTER" ]; then
-        # gpdeletesystem returns 1 if there are warnings. There are always
-        # warnings. So we ignore the exit code...
-        delete_cluster $NEW_CLUSTER || true
+        delete_cluster $NEW_CLUSTER
     fi
 }
 
@@ -35,23 +33,6 @@ upgrade_datadir() {
     [ -n "$dir" ]
 
     echo "$dir/$base"
-}
-
-# Calls gpdeletesystem. Due to the way gpdeletesystem works, you have to supply
-# the master port *and* master data directory. Any arguments after the port are
-# considered part of the data directory, to make $NEW_CLUSTER a little easier to
-# deal with in the presence of spaces.
-delete_cluster() {
-    local port=$1; shift
-    local masterdir="$*"
-
-    # Sanity check.
-    if [[ $masterdir != *_upgrade/demoDataDir* ]]; then
-        fail "cowardly refusing to delete $masterdir which does not look like an upgraded demo data directory"
-    fi
-
-    local gpdeletesystem="$GPHOME"/bin/gpdeletesystem
-    yes | PGPORT="$port" "$gpdeletesystem" -fd "$masterdir"
 }
 
 @test "gpupgrade execute runs gpinitsystem based on the source cluster" {
@@ -88,7 +69,7 @@ delete_cluster() {
     gpupgrade execute
 
     # Make sure we clean up during teardown().
-    NEW_CLUSTER="$newport $newmasterdir"
+    NEW_CLUSTER="$newmasterdir"
 
     # Store the data directories for the new cluster.
     run $PSQL -AtF$'\t' -p $newport postgres -c "select port, datadir from gp_segment_configuration where role = 'p'"

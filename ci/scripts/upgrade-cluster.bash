@@ -153,10 +153,9 @@ time ssh mdw GPHOME_OLD="${GPHOME_OLD}" GPHOME_NEW="${GPHOME_NEW}" bash <<"EOF"
               --old-port 5432
 
     gpupgrade execute
+    gpupgrade finalize
 
-    gpupgrade reconfigure-ports
-
-    dump_sql 5433 /tmp/new.sql
+    dump_sql 5432 /tmp/new.sql
     if ! compare_dumps /tmp/old.sql /tmp/new.sql; then
         echo 'error: before and after dumps differ'
         exit 1
