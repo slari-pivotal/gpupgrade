@@ -130,14 +130,17 @@ func StartAgents(source *utils.Cluster, target *utils.Cluster, stateDir string) 
 	// started, or do we just want to stop all of them and kick back to the
 	// user?
 	logStr := "start agents on master and hosts"
-	agentPath := filepath.Join(target.BinDir, "gpupgrade_agent")
 
+	// We rely on gpupgrade_agent's being on the PATH on all hosts.
+	//
 	// XXX State directory handling on agents needs to be improved. See issue
 	// #127: all agents will silently recreate that directory if it doesn't
 	// already exist. Plus, ExecuteOnAllHosts() doesn't let us control whether
 	// we execute locally or via SSH for the master, so we don't know whether
 	// GPUPGRADE_HOME is going to be inherited.
-	runAgentCmd := func(contentID int) string { return agentPath + " --daemonize --state-directory " + stateDir }
+	runAgentCmd := func(contentID int) string {
+		return "gpupgrade_agent --daemonize --state-directory " + stateDir
+	}
 
 	errStr := "Failed to start all gpupgrade_agents"
 

@@ -63,7 +63,6 @@ func CreateStateDirAndClusterConfigs(sourceBinDir, targetBinDir string) error {
 	return nil
 }
 
-// TODO: how should we find the gpupgrade_hub executable?  Right now, it's via newBinDir
 func StartHub() error {
 	countHubs, err := HowManyHubsRunning()
 	if err != nil {
@@ -75,6 +74,7 @@ func StartHub() error {
 		return errors.New("gpupgrade_hub process already running")
 	}
 
+	// We rely on gpupgrade_hub's being in the PATH on the master host.
 	cmd := execCommandHubStart("gpupgrade_hub", "--daemonize")
 	stdout, cmdErr := cmd.Output()
 	if cmdErr != nil {
