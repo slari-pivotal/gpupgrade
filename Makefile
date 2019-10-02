@@ -16,10 +16,10 @@ GIT_VERSION := $(shell git describe --tags --long| perl -pe 's/(.*)-([0-9]*)-(g[
 VERSION_LD_STR="-X github.com/greenplum-db/$(MODULE_NAME)/utils.UpgradeVersion=$(GIT_VERSION)"
 
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-LINUX_PREFIX := env GOOS=linux GOARCH=amd64
-MAC_PREFIX := env GOOS=darwin GOARCH=amd64
-LINUX_POSTFIX := .linux.$(BRANCH)
-MAC_POSTFIX := .darwin.$(BRANCH)
+LINUX_ENV := env GOOS=linux GOARCH=amd64
+MAC_ENV := env GOOS=darwin GOARCH=amd64
+LINUX_EXTENSION := .linux.$(BRANCH)
+MAC_EXTENSION := .darwin.$(BRANCH)
 
 GOFLAGS := -gcflags="all=-N -l"
 
@@ -77,8 +77,8 @@ sshd_build:
 		make -C integrations/sshd
 
 PACKAGES := $(addsuffix -package,agent cli hub)
-PREFIX = $($(OS)_PREFIX)
-POSTFIX = $($(OS)_POSTFIX)
+BUILD_ENV = $($(OS)_ENV)
+EXTENSION = $($(OS)_EXTENSION)
 
 .PHONY: build build_linux build_mac $(PACKAGES)
 
@@ -94,27 +94,13 @@ cli-package: EXE_NAME := $(CLI)
 hub-package: EXE_NAME := $(HUB)
 
 $(PACKAGES): %-package: .Gopkg.updated
-	$(PREFIX) go build $(GOFLAGS) -o $(EXE_NAME)$(POSTFIX) -ldflags $(VERSION_LD_STR) github.com/greenplum-db/gpupgrade/$*
+	$(BUILD_ENV) go build $(GOFLAGS) -o $(EXE_NAME)$(EXTENSION) -ldflags $(VERSION_LD_STR) github.com/greenplum-db/gpupgrade/$*
 
-install_agent: agent-package
-		@psql -t -d template1 -c 'SELECT DISTINCT hostname FROM gp_segment_configuration WHERE content != -1' > /tmp/seg_hosts 2>/dev/null; \
-		if [ $$? -eq 0 ]; then \
-			gpscp -f /tmp/seg_hosts $(AGENT) =:$(GPHOME)/bin/$(AGENT); \
-			if [ $$? -eq 0 ]; then \
-				echo 'Successfully copied gpupgrade_agent to $(GPHOME) on all segments'; \
-			else \
-				echo 'Failed to copy gpupgrade_agent to $(GPHOME)'; \
-				exit 1; \
-			fi; \
-		else \
-			echo 'Database is not running, please start the database and run this make target again'; \
-			exit 1; \
-		fi; \
-		rm /tmp/seg_hosts
-
-install: cli-package hub-package install_agent
-		cp -p $(CLI) $(GPHOME)/bin/$(CLI)
-		cp -p $(HUB) $(GPHOME)/bin/$(HUB)
+PREFIX ?= /usr/local
+install: cli-package hub-package agent-package
+	cp -p $(CLI) $(PREFIX)/bin/$(CLI)
+	cp -p $(HUB) $(PREFIX)/bin/$(HUB)
+	cp -p $(AGENT) $(PREFIX)/bin/$(AGENT)
 
 # We intentionally do not depend on install here -- the point of installcheck is
 # to test whatever has already been installed.
