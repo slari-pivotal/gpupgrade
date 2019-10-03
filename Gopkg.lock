@@ -158,13 +158,12 @@
   version = "v1.5.0"
 
 [[projects]]
-  digest = "1:f7972020aa715891374f50b4619442cbde533fa35f2ced3756a4f597c85ad191"
+  digest = "1:b3c839dfe191b766c31f225f0c5c03a6935e2c5080075ea86a1b1fc291dd2912"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
     "format",
     "gbytes",
-    "gexec",
     "internal/assertion",
     "internal/asyncassertion",
     "internal/oraclematcher",
@@ -374,7 +373,6 @@
     "github.com/onsi/ginkgo/extensions/table",
     "github.com/onsi/gomega",
     "github.com/onsi/gomega/gbytes",
-    "github.com/onsi/gomega/gexec",
     "github.com/pkg/errors",
     "github.com/spf13/cobra",
     "github.com/spf13/pflag",
