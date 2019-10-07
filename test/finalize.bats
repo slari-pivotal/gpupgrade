@@ -44,7 +44,6 @@ teardown() {
 }
 
 @test "finalize modifies ports on the live target cluster" {
-    skip "this test can't work until we fix hub and agent PATH lookup"
 
     # To avoid spinning up an entire upgrade just to test finalize, we instead
     # create a new cluster for the test and fake the configurations to point at

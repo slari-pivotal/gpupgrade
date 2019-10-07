@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 
@@ -130,6 +131,11 @@ func StartAgents(source *utils.Cluster, target *utils.Cluster, stateDir string) 
 	// started, or do we just want to stop all of them and kick back to the
 	// user?
 	logStr := "start agents on master and hosts"
+	hubPath, err := os.Executable()
+	if err != nil {
+		return errors.Errorf("Could not get path to hub executable %v", err)
+	}
+	agentPath := filepath.Join(path.Dir(hubPath), "gpupgrade_agent")
 
 	// We rely on gpupgrade_agent's being on the PATH on all hosts.
 	//
@@ -139,7 +145,7 @@ func StartAgents(source *utils.Cluster, target *utils.Cluster, stateDir string) 
 	// we execute locally or via SSH for the master, so we don't know whether
 	// GPUPGRADE_HOME is going to be inherited.
 	runAgentCmd := func(contentID int) string {
-		return "gpupgrade_agent --daemonize --state-directory " + stateDir
+		return agentPath + " --daemonize --state-directory " + stateDir
 	}
 
 	errStr := "Failed to start all gpupgrade_agents"

@@ -100,7 +100,8 @@ make
 # Install the artifacts onto the cluster machines.
 artifacts='gpupgrade gpupgrade_hub gpupgrade_agent'
 for host in "${hosts[@]}"; do
-    scp $artifacts "gpadmin@$host:${GPHOME_NEW}/bin/"
+    scp $artifacts "gpadmin@$host:/tmp"
+    ssh centos@$host "sudo mv /tmp/gpupgrade* /usr/local/bin"
 done
 
 echo 'Loading SQL dump into old cluster...'
@@ -143,9 +144,6 @@ time ssh mdw GPHOME_OLD="${GPHOME_OLD}" GPHOME_NEW="${GPHOME_NEW}" bash <<"EOF"
     }
 
     dump_sql 5432 /tmp/old.sql
-
-    # XXX gpupgrade needs to know where the hub is installed; see #117
-    export PATH=${GPHOME_NEW}/bin:$PATH
 
     gpupgrade initialize \
               --new-bindir ${GPHOME_NEW}/fake-bin \
