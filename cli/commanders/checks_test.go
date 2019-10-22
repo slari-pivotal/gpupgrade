@@ -69,3 +69,56 @@ func TestCheckVersion(t *testing.T) {
 		}
 	})
 }
+
+func TestDiskSpaceCheck(t *testing.T) {
+	cases := []struct {
+		name  string
+		reply *idl.CheckDiskSpaceReply
+		err   error
+	}{
+		{"reports completion on success",
+			&idl.CheckDiskSpaceReply{Failed: map[string]*idl.CheckDiskSpaceReply_DiskUsage{}},
+			nil,
+		},
+		{"reports failure when hub returns full disks",
+			&idl.CheckDiskSpaceReply{Failed: map[string]*idl.CheckDiskSpaceReply_DiskUsage{
+				"mdw": {Total: 300, Free: 1},
+			}},
+			errors.New("it failed.."),
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			client := mock_idl.NewMockCliToHubClient(ctrl)
+			client.EXPECT().CheckDiskSpace(
+				gomock.Any(),
+				&idl.CheckDiskSpaceRequest{},
+			).Return(c.reply, nil)
+
+			d := bufferStandardDescriptors(t)
+			defer d.Close()
+
+			err := commanders.CheckDiskSpace(client)
+
+			if err != c.err {
+				t.Errorf("returned error %#v, want %#v", err, c.err)
+			}
+
+			actualOut, _ := d.Collect()
+
+			expectedStatus := idl.StepStatus_COMPLETE
+			if c.err != nil {
+				expectedStatus = idl.StepStatus_FAILED
+			}
+			expected := commanders.Format("Checking disk space...", expectedStatus)
+
+			if !strings.Contains(string(actualOut), expected) {
+				t.Errorf("Expected string %q to contain %q", actualOut, expected)
+			}
+		})
+	}
+}

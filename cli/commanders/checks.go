@@ -30,3 +30,14 @@ func RunChecks(client idl.CliToHubClient) error {
 	}
 	return nil
 }
+
+func CheckDiskSpace(client idl.CliToHubClient) (err error) {
+	s := Substep("Checking disk space...")
+	defer s.Finish(&err)
+
+	failed, _ := client.CheckDiskSpace(context.Background(), &idl.CheckDiskSpaceRequest{})
+	if len(failed.Failed) > 0 {
+		return errors.New("it failed..")
+	}
+	return nil
+}
