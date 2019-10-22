@@ -345,10 +345,7 @@ This step can be reverted.
 			}
 
 			// TODO: how do we rollback here?
-			err = commanders.NewVersionChecker(client).Execute()
-			if err != nil {
-				return errors.Wrap(err, "checking version compatibility")
-			}
+			commanders.RunChecks(client)
 
 			fmt.Println(`
 Run "gpupgrade execute" on the command line to proceed with the upgrade.

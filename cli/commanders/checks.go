@@ -8,21 +8,11 @@ import (
 	"github.com/greenplum-db/gpupgrade/idl"
 )
 
-type VersionChecker struct {
-	client idl.CliToHubClient
-}
-
-func NewVersionChecker(client idl.CliToHubClient) VersionChecker {
-	return VersionChecker{
-		client: client,
-	}
-}
-
-func (req VersionChecker) Execute() (err error) {
+func CheckVersion(client idl.CliToHubClient) (err error) {
 	s := Substep("Checking version compatibility...")
 	defer s.Finish(&err)
 
-	resp, err := req.client.CheckVersion(context.Background(), &idl.CheckVersionRequest{})
+	resp, err := client.CheckVersion(context.Background(), &idl.CheckVersionRequest{})
 	if err != nil {
 		return errors.Wrap(err, "gRPC call to hub failed")
 	}
@@ -30,5 +20,13 @@ func (req VersionChecker) Execute() (err error) {
 		return errors.New("Version Compatibility Check Failed")
 	}
 
+	return nil
+}
+
+func RunChecks(client idl.CliToHubClient) error {
+	err := CheckVersion(client)
+	if err != nil {
+		return errors.Wrap(err, "checking version compatibility")
+	}
 	return nil
 }
