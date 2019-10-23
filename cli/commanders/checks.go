@@ -2,11 +2,20 @@ package commanders
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 
 	"github.com/greenplum-db/gpupgrade/idl"
 )
+
+type DiskSpaceError struct {
+	Failed map[string]*idl.CheckDiskSpaceReply_DiskUsage
+}
+
+func (dse DiskSpaceError) Error() string {
+	return fmt.Sprintf("total %d free %d", dse.Failed["mdw"].Total, dse.Failed["mdw"].Free)
+}
 
 func CheckVersion(client idl.CliToHubClient) (err error) {
 	s := Substep("Checking version compatibility...")
@@ -35,9 +44,9 @@ func CheckDiskSpace(client idl.CliToHubClient) (err error) {
 	s := Substep("Checking disk space...")
 	defer s.Finish(&err)
 
-	failed, _ := client.CheckDiskSpace(context.Background(), &idl.CheckDiskSpaceRequest{})
-	if len(failed.Failed) > 0 {
-		return errors.New("it failed..")
+	reply, _ := client.CheckDiskSpace(context.Background(), &idl.CheckDiskSpaceRequest{})
+	if len(reply.Failed) > 0 {
+		return DiskSpaceError{reply.Failed}
 	}
 	return nil
 }

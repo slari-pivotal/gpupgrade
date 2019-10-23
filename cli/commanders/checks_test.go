@@ -2,12 +2,14 @@ package commanders_test
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/greenplum-db/gpupgrade/cli/commanders"
 	"github.com/greenplum-db/gpupgrade/idl"
 	"github.com/greenplum-db/gpupgrade/idl/mock_idl"
+	"golang.org/x/xerrors"
 
 	"github.com/golang/mock/gomock"
 )
@@ -72,19 +74,19 @@ func TestCheckVersion(t *testing.T) {
 
 func TestDiskSpaceCheck(t *testing.T) {
 	cases := []struct {
-		name  string
-		reply *idl.CheckDiskSpaceReply
-		err   error
+		name      string
+		failed    map[string]*idl.CheckDiskSpaceReply_DiskUsage
+		expectErr bool
 	}{
 		{"reports completion on success",
-			&idl.CheckDiskSpaceReply{Failed: map[string]*idl.CheckDiskSpaceReply_DiskUsage{}},
-			nil,
+			map[string]*idl.CheckDiskSpaceReply_DiskUsage{},
+			false,
 		},
 		{"reports failure when hub returns full disks",
-			&idl.CheckDiskSpaceReply{Failed: map[string]*idl.CheckDiskSpaceReply_DiskUsage{
+			map[string]*idl.CheckDiskSpaceReply_DiskUsage{
 				"mdw": {Total: 300, Free: 1},
-			}},
-			errors.New("it failed.."),
+			},
+			true,
 		},
 	}
 
@@ -97,21 +99,31 @@ func TestDiskSpaceCheck(t *testing.T) {
 			client.EXPECT().CheckDiskSpace(
 				gomock.Any(),
 				&idl.CheckDiskSpaceRequest{},
-			).Return(c.reply, nil)
+			).Return(&idl.CheckDiskSpaceReply{Failed: c.failed}, nil)
 
 			d := bufferStandardDescriptors(t)
 			defer d.Close()
 
 			err := commanders.CheckDiskSpace(client)
-
-			if err != c.err {
-				t.Errorf("returned error %#v, want %#v", err, c.err)
-			}
-
 			actualOut, _ := d.Collect()
 
+			switch c.expectErr {
+			case true:
+				var diskSpaceError commanders.DiskSpaceError
+				if !xerrors.As(err, &diskSpaceError) {
+					t.Errorf("returned error %#v, want a DiskSpaceError", err)
+				} else if !reflect.DeepEqual(diskSpaceError.Failed, c.failed) {
+					t.Errorf("error contents were %v, want %v", diskSpaceError.Failed, c.failed)
+				}
+
+			case false:
+				if err != nil {
+					t.Errorf("returned error %#v, expected no error", err)
+				}
+			}
+
 			expectedStatus := idl.StepStatus_COMPLETE
-			if c.err != nil {
+			if c.expectErr {
 				expectedStatus = idl.StepStatus_FAILED
 			}
 			expected := commanders.Format("Checking disk space...", expectedStatus)
