@@ -12,8 +12,7 @@ setup() {
     echo "# SETUP"
     clean_target_cluster
     clean_statedir
-    kill_hub
-    kill_agents
+    gpupgrade kill-services
 }
 
 teardown() {
