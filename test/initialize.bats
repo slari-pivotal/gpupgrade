@@ -131,13 +131,12 @@ outputContains() {
     # Run every subcommand.
     for command in "${commands[@]}"; do
         run gpupgrade $command
-        echo "$status"
-        [ "$status" -eq 1 ]
-        outputContains "could not connect to the upgrade hub (did you run 'gpupgrade initialize'?)"
 
         # Trace which command we're on to make debugging easier.
-        echo "\$ gpupgrade $command"
+        echo "\$ gpupgrade $command -> $status"
         echo "$output"
 
+        [ "$status" -eq 1 ]
+        outputContains "could not connect to the upgrade hub (did you run 'gpupgrade initialize'?)"
     done
 }
