@@ -99,16 +99,20 @@ func TestDiskSpaceCheck(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
+			// exact value doesn't matter; we simply verify that it's passed
+			// through to gRPC as-is
+			ratio := float32(0.5)
+
 			client := mock_idl.NewMockCliToHubClient(ctrl)
 			client.EXPECT().CheckDiskSpace(
 				gomock.Any(),
-				&idl.CheckDiskSpaceRequest{},
+				&idl.CheckDiskSpaceRequest{Ratio: ratio},
 			).Return(&idl.CheckDiskSpaceReply{Failed: c.failed}, c.grpcErr)
 
 			d := bufferStandardDescriptors(t)
 			defer d.Close()
 
-			err := commanders.CheckDiskSpace(client)
+			err := commanders.CheckDiskSpace(client, ratio)
 			actualOut, _ := d.Collect()
 
 			expectedStatus := idl.StepStatus_FAILED
