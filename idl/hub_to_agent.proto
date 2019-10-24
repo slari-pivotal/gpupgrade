@@ -6,7 +6,7 @@ import "cli_to_hub.proto";
 service Agent {
     rpc CheckUpgradeStatus (CheckUpgradeStatusRequest) returns (CheckUpgradeStatusReply) {}
     rpc CheckConversionStatus (CheckConversionStatusRequest) returns (CheckConversionStatusReply) {}
-    rpc CheckDiskSpaceOnAgents (CheckDiskSpaceRequestToAgent) returns (CheckDiskSpaceReplyFromAgent) {}
+    rpc CheckDiskSpace (CheckDiskSpaceRequest) returns (CheckDiskSpaceReply) {}
     rpc AgentExecuteUpgradePrimariesSubStep (UpgradePrimariesRequest) returns (UpgradePrimariesReply) {}
     rpc CreateSegmentDataDirectories (CreateSegmentDataDirRequest) returns (CreateSegmentDataDirReply) {}
     rpc CopyMasterDirectoryToSegmentDirectories (CopyMasterDirRequest) returns (CopyMasterDirReply) {}
@@ -49,17 +49,6 @@ message SegmentInfo {
 
 message CheckConversionStatusReply {
     repeated PrimaryStatus Statuses = 1;
-}
-
-message FileSysUsage {
-    string Filesystem = 1;
-    double Usage = 2;
-}
-
-message CheckDiskSpaceRequestToAgent {}
-
-message CheckDiskSpaceReplyFromAgent {
-    repeated FileSysUsage ListOfFileSysUsage = 1;
 }
 
 message CreateSegmentDataDirRequest {

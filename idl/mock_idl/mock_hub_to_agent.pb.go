@@ -75,24 +75,24 @@ func (mr *MockAgentClientMockRecorder) CheckConversionStatus(ctx, in interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckConversionStatus", reflect.TypeOf((*MockAgentClient)(nil).CheckConversionStatus), varargs...)
 }
 
-// CheckDiskSpaceOnAgents mocks base method
-func (m *MockAgentClient) CheckDiskSpaceOnAgents(ctx context.Context, in *idl.CheckDiskSpaceRequestToAgent, opts ...grpc.CallOption) (*idl.CheckDiskSpaceReplyFromAgent, error) {
+// CheckDiskSpace mocks base method
+func (m *MockAgentClient) CheckDiskSpace(ctx context.Context, in *idl.CheckDiskSpaceRequest, opts ...grpc.CallOption) (*idl.CheckDiskSpaceReply, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "CheckDiskSpaceOnAgents", varargs...)
-	ret0, _ := ret[0].(*idl.CheckDiskSpaceReplyFromAgent)
+	ret := m.ctrl.Call(m, "CheckDiskSpace", varargs...)
+	ret0, _ := ret[0].(*idl.CheckDiskSpaceReply)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CheckDiskSpaceOnAgents indicates an expected call of CheckDiskSpaceOnAgents
-func (mr *MockAgentClientMockRecorder) CheckDiskSpaceOnAgents(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+// CheckDiskSpace indicates an expected call of CheckDiskSpace
+func (mr *MockAgentClientMockRecorder) CheckDiskSpace(ctx, in interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckDiskSpaceOnAgents", reflect.TypeOf((*MockAgentClient)(nil).CheckDiskSpaceOnAgents), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckDiskSpace", reflect.TypeOf((*MockAgentClient)(nil).CheckDiskSpace), varargs...)
 }
 
 // AgentExecuteUpgradePrimariesSubStep mocks base method
@@ -228,19 +228,19 @@ func (mr *MockAgentServerMockRecorder) CheckConversionStatus(arg0, arg1 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckConversionStatus", reflect.TypeOf((*MockAgentServer)(nil).CheckConversionStatus), arg0, arg1)
 }
 
-// CheckDiskSpaceOnAgents mocks base method
-func (m *MockAgentServer) CheckDiskSpaceOnAgents(arg0 context.Context, arg1 *idl.CheckDiskSpaceRequestToAgent) (*idl.CheckDiskSpaceReplyFromAgent, error) {
+// CheckDiskSpace mocks base method
+func (m *MockAgentServer) CheckDiskSpace(arg0 context.Context, arg1 *idl.CheckDiskSpaceRequest) (*idl.CheckDiskSpaceReply, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckDiskSpaceOnAgents", arg0, arg1)
-	ret0, _ := ret[0].(*idl.CheckDiskSpaceReplyFromAgent)
+	ret := m.ctrl.Call(m, "CheckDiskSpace", arg0, arg1)
+	ret0, _ := ret[0].(*idl.CheckDiskSpaceReply)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CheckDiskSpaceOnAgents indicates an expected call of CheckDiskSpaceOnAgents
-func (mr *MockAgentServerMockRecorder) CheckDiskSpaceOnAgents(arg0, arg1 interface{}) *gomock.Call {
+// CheckDiskSpace indicates an expected call of CheckDiskSpace
+func (mr *MockAgentServerMockRecorder) CheckDiskSpace(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckDiskSpaceOnAgents", reflect.TypeOf((*MockAgentServer)(nil).CheckDiskSpaceOnAgents), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckDiskSpace", reflect.TypeOf((*MockAgentServer)(nil).CheckDiskSpace), arg0, arg1)
 }
 
 // AgentExecuteUpgradePrimariesSubStep mocks base method
