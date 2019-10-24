@@ -8,17 +8,14 @@ setup() {
     STATE_DIR=`mktemp -d`
     export GPUPGRADE_HOME="${STATE_DIR}/gpupgrade"
 
-    kill_agents
-    kill_hub
+    gpupgrade kill-services
 }
 
 teardown() {
-    # XXX Beware, BATS_TEST_SKIPPED is not a documented export.
-    if [ -z "${BATS_TEST_SKIPPED}" ]; then
-        kill_agents
-        kill_hub
-        rm -r "$STATE_DIR"
-    fi
+    skip_if_no_gpdb
+
+    gpupgrade kill-services
+    rm -r "$STATE_DIR"
 }
 
 # gnu_stat tries to find a GNU stat program and prints its path to stdout. If
