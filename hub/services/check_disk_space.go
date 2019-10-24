@@ -24,8 +24,8 @@ func (h *Hub) CheckDiskSpace(ctx context.Context, in *idl.CheckDiskSpaceRequest)
 	}
 	if availableSpace < requiredSpace {
 		reply.Failed["localhost"] = &idl.CheckDiskSpaceReply_DiskUsage{
-			Total: requiredSpace,
-			Free:  availableSpace,
+			Required:  requiredSpace,
+			Available: availableSpace,
 		}
 	}
 

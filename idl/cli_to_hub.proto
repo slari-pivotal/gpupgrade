@@ -101,8 +101,8 @@ message CheckDiskSpaceRequest {
 
 message CheckDiskSpaceReply {
   message DiskUsage {
-    uint64 free = 1;
-    uint64 total = 2;
+    uint64 available = 1;
+    uint64 required = 2;
   }
   map<string, DiskUsage> failed = 1;
 }

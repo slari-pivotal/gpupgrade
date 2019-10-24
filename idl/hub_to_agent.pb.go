@@ -37,7 +37,7 @@ func (m *UpgradePrimariesRequest) Reset()         { *m = UpgradePrimariesRequest
 func (m *UpgradePrimariesRequest) String() string { return proto.CompactTextString(m) }
 func (*UpgradePrimariesRequest) ProtoMessage()    {}
 func (*UpgradePrimariesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{0}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{0}
 }
 func (m *UpgradePrimariesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpgradePrimariesRequest.Unmarshal(m, b)
@@ -100,7 +100,7 @@ func (m *DataDirPair) Reset()         { *m = DataDirPair{} }
 func (m *DataDirPair) String() string { return proto.CompactTextString(m) }
 func (*DataDirPair) ProtoMessage()    {}
 func (*DataDirPair) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{1}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{1}
 }
 func (m *DataDirPair) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DataDirPair.Unmarshal(m, b)
@@ -165,7 +165,7 @@ func (m *UpgradePrimariesReply) Reset()         { *m = UpgradePrimariesReply{} }
 func (m *UpgradePrimariesReply) String() string { return proto.CompactTextString(m) }
 func (*UpgradePrimariesReply) ProtoMessage()    {}
 func (*UpgradePrimariesReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{2}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{2}
 }
 func (m *UpgradePrimariesReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpgradePrimariesReply.Unmarshal(m, b)
@@ -195,7 +195,7 @@ func (m *CheckUpgradeStatusRequest) Reset()         { *m = CheckUpgradeStatusReq
 func (m *CheckUpgradeStatusRequest) String() string { return proto.CompactTextString(m) }
 func (*CheckUpgradeStatusRequest) ProtoMessage()    {}
 func (*CheckUpgradeStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{3}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{3}
 }
 func (m *CheckUpgradeStatusRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckUpgradeStatusRequest.Unmarshal(m, b)
@@ -226,7 +226,7 @@ func (m *CheckUpgradeStatusReply) Reset()         { *m = CheckUpgradeStatusReply
 func (m *CheckUpgradeStatusReply) String() string { return proto.CompactTextString(m) }
 func (*CheckUpgradeStatusReply) ProtoMessage()    {}
 func (*CheckUpgradeStatusReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{4}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{4}
 }
 func (m *CheckUpgradeStatusReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckUpgradeStatusReply.Unmarshal(m, b)
@@ -265,7 +265,7 @@ func (m *CheckConversionStatusRequest) Reset()         { *m = CheckConversionSta
 func (m *CheckConversionStatusRequest) String() string { return proto.CompactTextString(m) }
 func (*CheckConversionStatusRequest) ProtoMessage()    {}
 func (*CheckConversionStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{5}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{5}
 }
 func (m *CheckConversionStatusRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckConversionStatusRequest.Unmarshal(m, b)
@@ -312,7 +312,7 @@ func (m *SegmentInfo) Reset()         { *m = SegmentInfo{} }
 func (m *SegmentInfo) String() string { return proto.CompactTextString(m) }
 func (*SegmentInfo) ProtoMessage()    {}
 func (*SegmentInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{6}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{6}
 }
 func (m *SegmentInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SegmentInfo.Unmarshal(m, b)
@@ -364,7 +364,7 @@ func (m *CheckConversionStatusReply) Reset()         { *m = CheckConversionStatu
 func (m *CheckConversionStatusReply) String() string { return proto.CompactTextString(m) }
 func (*CheckConversionStatusReply) ProtoMessage()    {}
 func (*CheckConversionStatusReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{7}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{7}
 }
 func (m *CheckConversionStatusReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckConversionStatusReply.Unmarshal(m, b)
@@ -403,7 +403,7 @@ func (m *FileSysUsage) Reset()         { *m = FileSysUsage{} }
 func (m *FileSysUsage) String() string { return proto.CompactTextString(m) }
 func (*FileSysUsage) ProtoMessage()    {}
 func (*FileSysUsage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{8}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{8}
 }
 func (m *FileSysUsage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FileSysUsage.Unmarshal(m, b)
@@ -447,7 +447,7 @@ func (m *CheckDiskSpaceRequestToAgent) Reset()         { *m = CheckDiskSpaceRequ
 func (m *CheckDiskSpaceRequestToAgent) String() string { return proto.CompactTextString(m) }
 func (*CheckDiskSpaceRequestToAgent) ProtoMessage()    {}
 func (*CheckDiskSpaceRequestToAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{9}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{9}
 }
 func (m *CheckDiskSpaceRequestToAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckDiskSpaceRequestToAgent.Unmarshal(m, b)
@@ -478,7 +478,7 @@ func (m *CheckDiskSpaceReplyFromAgent) Reset()         { *m = CheckDiskSpaceRepl
 func (m *CheckDiskSpaceReplyFromAgent) String() string { return proto.CompactTextString(m) }
 func (*CheckDiskSpaceReplyFromAgent) ProtoMessage()    {}
 func (*CheckDiskSpaceReplyFromAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{10}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{10}
 }
 func (m *CheckDiskSpaceReplyFromAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckDiskSpaceReplyFromAgent.Unmarshal(m, b)
@@ -516,7 +516,7 @@ func (m *CreateSegmentDataDirRequest) Reset()         { *m = CreateSegmentDataDi
 func (m *CreateSegmentDataDirRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateSegmentDataDirRequest) ProtoMessage()    {}
 func (*CreateSegmentDataDirRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{11}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{11}
 }
 func (m *CreateSegmentDataDirRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateSegmentDataDirRequest.Unmarshal(m, b)
@@ -553,7 +553,7 @@ func (m *CreateSegmentDataDirReply) Reset()         { *m = CreateSegmentDataDirR
 func (m *CreateSegmentDataDirReply) String() string { return proto.CompactTextString(m) }
 func (*CreateSegmentDataDirReply) ProtoMessage()    {}
 func (*CreateSegmentDataDirReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{12}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{12}
 }
 func (m *CreateSegmentDataDirReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateSegmentDataDirReply.Unmarshal(m, b)
@@ -585,7 +585,7 @@ func (m *CopyMasterDirRequest) Reset()         { *m = CopyMasterDirRequest{} }
 func (m *CopyMasterDirRequest) String() string { return proto.CompactTextString(m) }
 func (*CopyMasterDirRequest) ProtoMessage()    {}
 func (*CopyMasterDirRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{13}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{13}
 }
 func (m *CopyMasterDirRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CopyMasterDirRequest.Unmarshal(m, b)
@@ -629,7 +629,7 @@ func (m *CopyMasterDirReply) Reset()         { *m = CopyMasterDirReply{} }
 func (m *CopyMasterDirReply) String() string { return proto.CompactTextString(m) }
 func (*CopyMasterDirReply) ProtoMessage()    {}
 func (*CopyMasterDirReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{14}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{14}
 }
 func (m *CopyMasterDirReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CopyMasterDirReply.Unmarshal(m, b)
@@ -659,7 +659,7 @@ func (m *StopAgentRequest) Reset()         { *m = StopAgentRequest{} }
 func (m *StopAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*StopAgentRequest) ProtoMessage()    {}
 func (*StopAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{15}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{15}
 }
 func (m *StopAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StopAgentRequest.Unmarshal(m, b)
@@ -689,7 +689,7 @@ func (m *StopAgentReply) Reset()         { *m = StopAgentReply{} }
 func (m *StopAgentReply) String() string { return proto.CompactTextString(m) }
 func (*StopAgentReply) ProtoMessage()    {}
 func (*StopAgentReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hub_to_agent_c8bee85b78fb6a05, []int{16}
+	return fileDescriptor_hub_to_agent_9dd59a70a94aab25, []int{16}
 }
 func (m *StopAgentReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StopAgentReply.Unmarshal(m, b)
@@ -999,9 +999,9 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 	Metadata: "hub_to_agent.proto",
 }
 
-func init() { proto.RegisterFile("hub_to_agent.proto", fileDescriptor_hub_to_agent_c8bee85b78fb6a05) }
+func init() { proto.RegisterFile("hub_to_agent.proto", fileDescriptor_hub_to_agent_9dd59a70a94aab25) }
 
-var fileDescriptor_hub_to_agent_c8bee85b78fb6a05 = []byte{
+var fileDescriptor_hub_to_agent_9dd59a70a94aab25 = []byte{
 	// 719 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x55, 0x4d, 0x53, 0xdb, 0x48,
 	0x10, 0xc5, 0x80, 0x77, 0xed, 0x36, 0xb5, 0xe5, 0x9d, 0x85, 0xb5, 0x11, 0x2e, 0xc7, 0x51, 0x0e,

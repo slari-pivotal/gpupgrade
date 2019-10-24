@@ -45,12 +45,12 @@ func (d DiskSpaceError) Error() string {
 
 	b.WriteString("Expected Space Available:\n")
 	for host, disk := range d.Failed {
-		b.WriteString(fmt.Sprintf(" - %s: %d\n", host, disk.Total))
+		b.WriteString(fmt.Sprintf(" - %s: %d\n", host, disk.Required))
 	}
 
 	b.WriteString("Actual Space Available:\n")
 	for host, disk := range d.Failed {
-		b.WriteString(fmt.Sprintf(" - %s: %d\n", host, disk.Free))
+		b.WriteString(fmt.Sprintf(" - %s: %d\n", host, disk.Available))
 	}
 
 	return b.String()

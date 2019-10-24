@@ -84,7 +84,7 @@ func TestDiskSpaceCheck(t *testing.T) {
 		},
 		{"reports failure when hub returns full disks",
 			map[string]*idl.CheckDiskSpaceReply_DiskUsage{
-				"mdw": {Total: 300, Free: 1},
+				"mdw": {Required: 300, Available: 1},
 			},
 			nil,
 		},
