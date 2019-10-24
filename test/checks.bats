@@ -78,5 +78,5 @@ gnu_stat() {
 
     actual_space="${BASH_REMATCH[2]}"
     (( $min <= $actual_space && $actual_space <= $max )) \
-        || fail "wanted $actual_space to be between $space_before and $space_after; actual output: $output"
+        || fail "wanted $actual_space to be between $min and $max; actual output: $output"
 }
