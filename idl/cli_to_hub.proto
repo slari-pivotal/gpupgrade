@@ -95,7 +95,10 @@ message CheckVersionReply {
     bool IsVersionCompatible = 1;
 }
 
-message CheckDiskSpaceRequest {}
+message CheckDiskSpaceRequest {
+	float ratio = 1;
+}
+
 message CheckDiskSpaceReply {
   message DiskUsage {
     uint64 free = 1;

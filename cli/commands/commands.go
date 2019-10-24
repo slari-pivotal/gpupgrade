@@ -53,7 +53,7 @@ func BuildRootCommand() *cobra.Command {
 	// TODO: if called without a subcommand, the cli prints a help message with timestamp.  Remove the timestamp.
 	root := &cobra.Command{Use: "gpupgrade"}
 
-	root.AddCommand(config, status, check, version)
+	root.AddCommand(config, status, version)
 	root.AddCommand(initialize())
 	root.AddCommand(execute())
 	root.AddCommand(finalize)
@@ -65,8 +65,6 @@ func BuildRootCommand() *cobra.Command {
 	config.AddCommand(subConfigSet, subConfigShow)
 
 	status.AddCommand(subStatusUpgrade, subStatusConversion)
-
-	check.AddCommand(subCheckObjectCount, subCheckDiskSpace)
 
 	return root
 }
@@ -123,34 +121,6 @@ func connectToHub() idl.CliToHubClient {
 	}
 
 	return idl.NewCliToHubClient(conn)
-}
-
-//////////////////////////////////////// CHECK and its subcommands
-var check = &cobra.Command{
-	Use:   "check",
-	Short: "collects information and validates the target Greenplum installation can be upgraded",
-	Long:  `collects information and validates the target Greenplum installation can be upgraded`,
-}
-
-var subCheckDiskSpace = &cobra.Command{
-	Use:     "disk-space",
-	Short:   "check that disk space usage is less than 80% on all segments",
-	Long:    "check that disk space usage is less than 80% on all segments",
-	Aliases: []string{"du"},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		client := connectToHub()
-		return commanders.NewDiskSpaceChecker(client).Execute()
-	},
-}
-var subCheckObjectCount = &cobra.Command{
-	Use:     "object-count",
-	Short:   "count database objects and numeric objects",
-	Long:    "count database objects and numeric objects",
-	Aliases: []string{"oc"},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		client := connectToHub()
-		return commanders.NewObjectCountChecker(client).Execute()
-	},
 }
 
 //////////////////////////////////////// CONFIG and its subcommands
@@ -301,6 +271,7 @@ var version = &cobra.Command{
 func initialize() *cobra.Command {
 	var oldBinDir, newBinDir string
 	var oldPort int
+	var diskFreeRatio float32
 
 	subInit := &cobra.Command{
 		Use:   "initialize",
@@ -345,7 +316,10 @@ This step can be reverted.
 			}
 
 			// TODO: how do we rollback here?
-			commanders.RunChecks(client)
+			err = commanders.RunChecks(client, diskFreeRatio)
+			if err != nil {
+				return err
+			}
 
 			fmt.Println(`
 Run "gpupgrade execute" on the command line to proceed with the upgrade.
@@ -364,6 +338,7 @@ If you would like to return the cluster to its original state, run
 	subInit.MarkPersistentFlagRequired("new-bindir")
 	subInit.PersistentFlags().IntVar(&oldPort, "old-port", 0, "master port for old gpdb cluster")
 	subInit.MarkPersistentFlagRequired("old-port")
+	subInit.PersistentFlags().Float32Var(&diskFreeRatio, "disk-free-ratio", 0.60, "percentage of disk space that must be available (from 0.0 - 1.0)")
 
 	return subInit
 }

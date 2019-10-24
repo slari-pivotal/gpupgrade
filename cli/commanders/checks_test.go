@@ -74,19 +74,23 @@ func TestCheckVersion(t *testing.T) {
 
 func TestDiskSpaceCheck(t *testing.T) {
 	cases := []struct {
-		name      string
-		failed    map[string]*idl.CheckDiskSpaceReply_DiskUsage
-		expectErr bool
+		name    string
+		failed  map[string]*idl.CheckDiskSpaceReply_DiskUsage
+		grpcErr error
 	}{
 		{"reports completion on success",
 			map[string]*idl.CheckDiskSpaceReply_DiskUsage{},
-			false,
+			nil,
 		},
 		{"reports failure when hub returns full disks",
 			map[string]*idl.CheckDiskSpaceReply_DiskUsage{
 				"mdw": {Total: 300, Free: 1},
 			},
-			true,
+			nil,
+		},
+		{"reports failure on gRPC error",
+			map[string]*idl.CheckDiskSpaceReply_DiskUsage{},
+			errors.New("gRPC failure"),
 		},
 	}
 
@@ -99,7 +103,7 @@ func TestDiskSpaceCheck(t *testing.T) {
 			client.EXPECT().CheckDiskSpace(
 				gomock.Any(),
 				&idl.CheckDiskSpaceRequest{},
-			).Return(&idl.CheckDiskSpaceReply{Failed: c.failed}, nil)
+			).Return(&idl.CheckDiskSpaceReply{Failed: c.failed}, c.grpcErr)
 
 			d := bufferStandardDescriptors(t)
 			defer d.Close()
@@ -107,8 +111,14 @@ func TestDiskSpaceCheck(t *testing.T) {
 			err := commanders.CheckDiskSpace(client)
 			actualOut, _ := d.Collect()
 
-			switch c.expectErr {
-			case true:
+			expectedStatus := idl.StepStatus_FAILED
+			switch {
+			case c.grpcErr != nil:
+				if !xerrors.Is(err, c.grpcErr) {
+					t.Errorf("returned error %#v, want %#v", err, c.grpcErr)
+				}
+
+			case len(c.failed) != 0:
 				var diskSpaceError commanders.DiskSpaceError
 				if !xerrors.As(err, &diskSpaceError) {
 					t.Errorf("returned error %#v, want a DiskSpaceError", err)
@@ -116,18 +126,14 @@ func TestDiskSpaceCheck(t *testing.T) {
 					t.Errorf("error contents were %v, want %v", diskSpaceError.Failed, c.failed)
 				}
 
-			case false:
+			default:
+				expectedStatus = idl.StepStatus_COMPLETE
 				if err != nil {
 					t.Errorf("returned error %#v, expected no error", err)
 				}
 			}
 
-			expectedStatus := idl.StepStatus_COMPLETE
-			if c.expectErr {
-				expectedStatus = idl.StepStatus_FAILED
-			}
 			expected := commanders.Format("Checking disk space...", expectedStatus)
-
 			if !strings.Contains(string(actualOut), expected) {
 				t.Errorf("Expected string %q to contain %q", actualOut, expected)
 			}
