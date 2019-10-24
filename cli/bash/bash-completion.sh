@@ -226,59 +226,6 @@ __handle_word()
     __handle_word
 }
 
-_gpupgrade_check_disk-space()
-{
-    last_command="gpupgrade_check_disk-space"
-    commands=()
-
-    flags=()
-    two_word_flags=()
-    local_nonpersistent_flags=()
-    flags_with_completion=()
-    flags_completion=()
-
-
-    must_have_one_flag=()
-    must_have_one_noun=()
-    noun_aliases=()
-}
-
-_gpupgrade_check_object-count()
-{
-    last_command="gpupgrade_check_object-count"
-    commands=()
-
-    flags=()
-    two_word_flags=()
-    local_nonpersistent_flags=()
-    flags_with_completion=()
-    flags_completion=()
-
-
-    must_have_one_flag=()
-    must_have_one_noun=()
-    noun_aliases=()
-}
-
-_gpupgrade_check()
-{
-    last_command="gpupgrade_check"
-    commands=()
-    commands+=("disk-space")
-    commands+=("object-count")
-
-    flags=()
-    two_word_flags=()
-    local_nonpersistent_flags=()
-    flags_with_completion=()
-    flags_completion=()
-
-
-    must_have_one_flag=()
-    must_have_one_noun=()
-    noun_aliases=()
-}
-
 _gpupgrade_config_set()
 {
     last_command="gpupgrade_config_set"
@@ -388,6 +335,7 @@ _gpupgrade_initialize()
     flags_with_completion=()
     flags_completion=()
 
+    flags+=("--disk-free-ratio=")
     flags+=("--new-bindir=")
     flags+=("--old-bindir=")
     flags+=("--old-port=")
@@ -508,7 +456,6 @@ _gpupgrade()
 {
     last_command="gpupgrade"
     commands=()
-    commands+=("check")
     commands+=("config")
     commands+=("execute")
     commands+=("finalize")
